@@ -127,6 +127,34 @@ def price_form_post():
 
 
 # TODO: Section 3 — add your /timequerytextbox GET and POST routes here
+@app.route("/timequerytextbox", methods=['GET'])
+def time_form():
+    return '''
+        <form method="POST" action="/timequerytextbox">
+            <label>Enter milliseconds: </label>
+            <input type="text" name="time">
+            <input type="submit" value="Search">
+        </form>
+    '''
+
+@app.route("/timequerytextbox", methods=['POST'])
+def time_form_post():
+    time = request.form['time']
+    return viewtime(time)
+
+@app.route("/timequery/<time>")
+def viewtime(time):
+    rows = execute_query("""
+        SELECT ArtistId, Artist.Name, Track.Name, UnitPrice, Milliseconds
+        FROM Artist
+        JOIN Album USING (ArtistID)
+        JOIN Track USING (AlbumID)
+        WHERE Milliseconds > %s
+        ORDER BY Milliseconds DESC
+        LIMIT 500
+    """, (str(time),))
+    return display_html(rows)
+
 
 
 # ---------------------------------------------------------------------------
